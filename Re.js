@@ -33,6 +33,15 @@ app.get('/maleta', (req, res) => {
 });
 
 
+app.get('/maleta/:id', (req, res)=>{
+    const id = parseInt(req.params.id);
+    const index = inventario.findIndex(item => item.id === id);
+    if(index !== -1){
+        res.status(200).json(items[index]);
+    }
+});
+
+
 app.post('/maleta', (req, res) =>{
 
    if(inventario.length >=10){
