@@ -45,12 +45,12 @@ app.get('/maleta/:id', (req, res)=>{
 app.post('/maleta', (req, res) =>{
 
    if(inventario.length >10){
-        return res.status(400).json({ mensagem: "A maleta está cheia. O limite é de 10 itens." });
+        res.status(400).json({ mensagem: "A maleta está cheia. O limite é de 10 itens." });
     }
 
     if(!req.body.name || req.body.name ===''){
         res.status(400).json({mensage: "O campo 'name' é obrigatório"});
-        return;
+        
     }
 
     let newId = 1;
