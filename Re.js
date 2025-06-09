@@ -44,7 +44,7 @@ app.get('/maleta/:id', (req, res)=>{
 
 app.post('/maleta', (req, res) =>{
 
-   if(inventario.length >=10){
+   if(inventario.length >10){
         return res.status(400).json({ mensagem: "A maleta está cheia. O limite é de 10 itens." });
     }
 
