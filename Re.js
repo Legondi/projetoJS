@@ -24,7 +24,7 @@ function nivel3(item) {
 }
 
 
-app.get('/item', (req, res) => {
+app.get('/maleta', (req, res) => {
     const response = inventario.map(item => ({
         ...item,
         link: nivel3(item),
