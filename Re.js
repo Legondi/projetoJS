@@ -13,11 +13,52 @@ let inventario = [
   
 ];
 
-app.get('/maleta', (req, res) => {
+function nivel3(item) {
+    return {
+        self:   { href: `/maleta/${item.id}` },
+        update: { href: `/maleta/${item.id}`, method: "PUT" },
+        delete: { href: `/maleta/${item.id}`, method: "DELETE" },
+        create: { href: `/maleta`, method: "POST" },
+        all:    { href: `/maleta`, method: "GET" }
+    };
+}
 
-    res.status(200).json(inventario);
 
+app.get('/item', (req, res) => {
+    const response = inventario.map(item => ({
+        ...item,
+        link: nivel3(item),
+    }));
+    res.status(200).json(response);
 });
+
+
+app.post('/maleta', (req, res) =>{
+
+   if(inventario.length >=10){
+        return res.status(400).json({ mensagem: "A maleta está cheia. O limite é de 10 itens." });
+    }
+
+    if(!req.body.name || req.body.name ===''){
+        res.status(400).json({mensage: "O campo 'name' é obrigatório"});
+        return;
+    }
+
+    let newId = 1;
+    while (inventario[newId]){
+        newId++;
+    }
+
+    const newItem = {
+        id: newId,
+        name: req.body.name
+    };
+    inventario[newId] = newItem;
+
+    res.status(201).json(newItem);
+});
+
+
 
 app.post('/maleta/combinar', (req, res) => {
     const indexVerde = inventario.findIndex(item => item && item.name === 'Erva Verde');
