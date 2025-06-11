@@ -6,21 +6,25 @@ app.use(express.json());
 
 let inventario = [
 
-    { id: 1, name: "Handgun" , tipo: "Pistola" , dano:10, combinavel: "sim"},
-    { id: 2, name: "Knife",  tipo:"lamina", dano:3, combinavel: "não" },
-    { id: 3, name: "Erva Verde", tipo:"vida", recuperacao: 7, combinavel: "sim" },
-    { id: 4, name: "Erva Vermelha", tipo:"vida", combinavel: "sim" },
+    { id: 1, name: "Handgun", tipo: "Pistola", dano: 10, combinavel: "sim" },
+    { id: 2, name: "Knife", tipo: "lamina", dano: 3, combinavel: "não" },
+    { id: 3, name: "Erva Verde", tipo: "vida", recuperacao: 7, combinavel: "sim" },
+    { id: 4, name: "Erva Vermelha", tipo: "vida", combinavel: "sim" },
 
 ];
 
 let acessorio = [
 
-    {id:1, name:"mira a lazer", habilidade:"pequeno aumento de precisão"},
-    {id:2, name:"estoque TMP", habilidade:"grande aumento de precisão"}
+    { id: "a", name: "mira a lazer", habilidade: "pequeno aumento de precisão" },
+    { id: "b", name: "estoque TMP", habilidade: "grande aumento de precisão" }
 
 ]
 
-function nivel3(item,) {
+function NumeroParaLetra(n) {
+    return String.fromCharCode(97 + n);
+}
+
+function nivel3(item) {
     return {
         self: { href: `/maleta/${item.id}` },
         update: { href: `/maleta/${item.id}`, method: "PUT" },
@@ -37,12 +41,12 @@ app.get('/maleta', (req, res) => {
         ...item,
         link: nivel3(item),
     }));
-    
+
     const response2 = acessorio.map(item2 => ({
         ...item2,
         link: nivel3(item2),
     }));
-    
+
     // manda de volta os DOIS arrays em um único objeto
     res.status(200).json({
         inventario: response,
@@ -54,10 +58,21 @@ app.get('/maleta', (req, res) => {
 
 app.get('/maleta/:id', (req, res) => {
     const id = parseInt(req.params.id);
+    const id2 = (req.params.id)
     const index = inventario.findIndex(item => item.id === id);
+    const index2 = acessorio.findIndex(item => item.id === id2)
     if (index !== -1) {
         res.status(200).json(inventario[index]);
+    }   else if (index2 !== "") {
+      
+        res.status(200).json(acessorio[index2]);
+    
+    } else {
+
+        res.status(404).json({message:"nao foi encontrado"})
+
     }
+
 });
 
 
@@ -75,12 +90,23 @@ app.post('/maleta', (req, res) => {
             res.status(400).json({ message: "É necessário informar a propriedade 'name'" });
 
         } else {
+
+            if(req.body.habilidade == null || req.body.habilidade === '') {
+
+                const newItem = { id: inventario.length + 1, ...req.body }
+                //push insere um novo item no vetor...
+                inventario.push(newItem);
+                res.status(201).json(newItem);
+                
+            } else {
+
+                const newItem2 = {id: acessorio.id = NumeroParaLetra(acessorio.length), ...req.body}
+                acessorio.push(newItem2);
+                res.status(201).json(newItem2);
+
+            }
             
-            
-            const newItem = { id: inventario.length + 1, ...req.body }
-            //push insere um novo item no vetor...
-            inventario.push(newItem);
-            res.status(201).json(newItem);
+
         }
 
     }
