@@ -9,7 +9,7 @@ let inventario = [
     { id: 1, name: "Handgun", tipo: "Pistola", dano: 10, combinavel: "sim" },
     { id: 2, name: "Knife", tipo: "lamina", dano: 3, combinavel: "não" },
     { id: 3, name: "Erva Verde", tipo: "vida", recuperacao: 7, combinavel: "sim" },
-    { id: 4, name: "Erva Vermelha", tipo: "vida", combinavel: "sim" },
+    { id: 4, name: "Erva Vermelha", tipo: "vida", recuperao: 0, combinavel: "sim" },
 
 ];
 
@@ -63,13 +63,13 @@ app.get('/maleta/:id', (req, res) => {
     const index2 = acessorio.findIndex(item => item.id === id2)
     if (index !== -1) {
         res.status(200).json(inventario[index]);
-    }   else if (index2 !== "") {
-      
+    } else if (index2 !== "") {
+
         res.status(200).json(acessorio[index2]);
-    
+
     } else {
 
-        res.status(404).json({message:"nao foi encontrado"})
+        res.status(404).json({ message: "nao foi encontrado" })
 
     }
 
@@ -77,39 +77,97 @@ app.get('/maleta/:id', (req, res) => {
 
 
 app.post('/maleta', (req, res) => {
-    //os arrays tem uma propriedade chamada length... essa propriedade calcula o tamanho
-    //do meu vetor e retorna ele em formato de inteiro...
+
+    const name = req.body.name;
+    const habilidade = req.body.habilidade;
+
 
     if (inventario.length >= 10) {
 
         res.status(400).json({ message: "inventario cheio" });
 
+    } else if (name === null || name === "" || name === undefined) {
+
+        res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
+
     } else {
 
-        if (req.body.name === null || req.body.name === '') {
-            res.status(400).json({ message: "É necessário informar a propriedade 'name'" });
+        if (habilidade == undefined) {
+
+
+
+            const ItemType = req.body.tipo;
+
+            if (req.body.tipo === null || req.body.tipo === "" || req.body.tipo === undefined) {
+
+                res.status(400).json({ message: "É necessário informar a propriedade 'tipo' ou 'habilidade'" });
+
+            } else if (ItemType === 'vida') {
+
+                if (req.body.recuperacao === null || req.body.recuperacao === "" || req.body.recuperacao === undefined) {
+
+                    res.status(400).json({ message: "para itens de cura o valor da propriedade 'recuperacao' é obrigatorio" });
+
+                } else {
+
+                    if (req.body.combinavel === null || req.body.combinavel === "" || req.body.combinavel === undefined) {
+
+                        res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+
+                    } else {
+
+                        const newItem = { id: inventario.length + 1, ...req.body }
+                        //push insere um novo item no vetor...
+                        inventario.push(newItem);
+                        res.status(201).json(newItem);
+
+                    }
+
+                }
+
+            } else {
+
+                if (req.body.dano === null || req.body.dano === "" || req.body.dano === undefined) {
+
+                    res.status(400).json({ message: "para itens de ataque o valor da propriedade 'dano' é obrigatorio" });
+
+                } else {
+
+                    if (req.body.combinavel === null || req.body.combinavel === "" || req.body.combinavel === undefined) {
+
+                        res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+
+                    } else {
+
+                        const newItem = { id: inventario.length + 1, ...req.body }
+                        //push insere um novo item no vetor...
+                        inventario.push(newItem);
+                        res.status(201).json(newItem);
+
+                    }
+
+                }
+
+            }
 
         } else {
 
-            if(req.body.habilidade == null || req.body.habilidade === '') {
+            if (habilidade === "" || habilidade === null) {
 
-                const newItem = { id: inventario.length + 1, ...req.body }
-                //push insere um novo item no vetor...
-                inventario.push(newItem);
-                res.status(201).json(newItem);
-                
+                res.status(400).json({ message: "é necessario informar a propriedade 'habilidade' para os acessorios" });
+
             } else {
 
-                const newItem2 = {id: acessorio.id = NumeroParaLetra(acessorio.length), ...req.body}
+                const newItem2 = { id: acessorio.id = NumeroParaLetra(acessorio.length), ...req.body }
                 acessorio.push(newItem2);
                 res.status(201).json(newItem2);
 
             }
-            
 
         }
 
     }
+
 });
 
 
