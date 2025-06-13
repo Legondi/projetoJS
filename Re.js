@@ -15,8 +15,8 @@ let inventario = [
 
 let acessorio = [
 
-    { id: "a", name: "mira a lazer", habilidade: "pequeno aumento de precisão" },
-    { id: "b", name: "estoque TMP", habilidade: "grande aumento de precisão" }
+    { id: "a", name: "mira a lazer", habilidade: "pequeno aumento de precisão",coletado: "sim" },
+    { id: "b", name: "estoque TMP", habilidade: "grande aumento de precisão" , coletado: "sim"}
 
 ]
 
@@ -54,7 +54,14 @@ app.get('/maleta', (req, res) => {
     });
 });
 
+app.get('/acessorios',(req, res) =>{
+    
 
+    const coleta = acessorio.findIndex(item => item.coletado === 'sim');
+    res.json(acessorio[coleta]);
+    
+
+});
 
 app.get('/maleta/:id', (req, res) => {
     const id = parseInt(req.params.id);
@@ -173,16 +180,11 @@ app.post('/maleta', (req, res) => {
 
 
 app.post('/maleta/combinar', (req, res) => {
-    const indexVerde = inventario.findIndex(item => item && item.name === 'Erva Verde');
-    const indexVermelha = inventario.findIndex(item => item && item.name === 'Erva Vermelha');
+    const indexVerde = inventario.findIndex(item => item.name === 'Erva Verde');
+    const indexVermelha = inventario.findIndex(item => item.name === 'Erva Vermelha');
 
-    //verifica se o index é menor que 0
     if (indexVerde >= 0 && indexVermelha >= 0) {
-        const idVerde = inventario[indexVerde].id;
-        const idVermelha = inventario[indexVermelha].id;
-        const menorId = Math.min(idVerde, idVermelha);
 
-        // Remove as ervas em ordem para não bagunçar índices
         if (indexVerde > indexVermelha) {
             inventario.splice(indexVerde, 1);
             inventario.splice(indexVermelha, 1);
@@ -191,13 +193,8 @@ app.post('/maleta/combinar', (req, res) => {
             inventario.splice(indexVerde, 1);
         }
 
-        // Procurar slot vazio
-        const slotVazio = inventario.findIndex(item => item == null);
-
-        if (slotVazio !== -1) {
-            inventario[slotVazio] = { id: menorId, name: "Ervas Combinadas" };
-        } else if (inventario.length < 10) {
-            inventario.push({ id: menorId, name: "Ervas Combinadas" });
+        if (inventario.length < 10) {
+            inventario.push({ id: inventario.length + 1, name: "Ervas Combinadas", tipo: "vida", recuperacao: 20, combinavel: "não" });
         } else {
             return res.status(400).json({ message: "Maleta cheia!" });
         }
