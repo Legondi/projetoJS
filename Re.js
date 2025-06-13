@@ -24,7 +24,7 @@ function NumeroParaLetra(n) {
     return String.fromCharCode(97 + n);
 }
 
-function nivel3(item) {
+function HATEOAS(item) {
     return {
         self: { href: `/maleta/${item.id}` },
         update: { href: `/maleta/${item.id}`, method: "PUT" },
@@ -39,12 +39,12 @@ app.get('/maleta', (req, res) => {
     // adiciona links HATEOAS em cada item
     const response = inventario.map(item => ({
         ...item,
-        link: nivel3(item),
+        link: HATEOAS(item),
     }));
 
     const response2 = acessorio.map(item2 => ({
         ...item2,
-        link: nivel3(item2),
+        link: HATEOAS(item2),
     }));
 
     // manda de volta os DOIS arrays em um único objeto
