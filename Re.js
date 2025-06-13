@@ -48,23 +48,16 @@ app.post('/maleta', (req, res) =>{
        res.status(400).json({ mensagem: "A maleta está cheia. O limite é de 10 itens." });
     }
 
-    if(!req.body.name || req.body.name ===''){
+    if(req.body.name == null || req.body.name ===''){
         res.status(400).json({mensage: "O campo 'name' é obrigatório"});
         
+    } else{
+        const newItem = { id: DataTransferItemList.length + 1, ...req.body}
+        inventario.push(newItem);
+        res.status(201).json(newItem);
     }
 
-    let newId = 1;
-    while (inventario[newId]){
-        newId++;
-    }
 
-    const newItem = {
-        id: newId,
-        name: req.body.name
-    };
-    inventario[newId] = newItem;
-
-    res.status(201).json(newItem);
 });
 
 
