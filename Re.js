@@ -6,46 +6,178 @@ app.use(express.json());
 
 let inventario = [
 
-    { id: 1, name: "Handgun" },
-    { id: 2, name: "Knife" },
-    { id: 3, name: "Erva Verde" },
-    { id: 4, name: "Erva Vermelha" },
-  
+    { id: 1, name: "Handgun", tipo: "Pistola", dano: 10, combinavel: "sim" },
+    { id: 2, name: "Knife", tipo: "lamina", dano: 3, combinavel: "não" },
+    { id: 3, name: "Erva Verde", tipo: "vida", recuperacao: 7, combinavel: "sim" },
+    { id: 4, name: "Erva Vermelha", tipo: "vida", recuperao: 0, combinavel: "sim" },
+
 ];
+
+let acessorio = [
+
+    { id: "a", name: "mira a lazer", habilidade: "pequeno aumento de precisão",coletado: "sim" },
+    { id: "b", name: "estoque TMP", habilidade: "grande aumento de precisão" , coletado: "sim"}
+
+]
+
+function NumeroParaLetra(n) {
+    return String.fromCharCode(97 + n);
+}
 
 function nivel3(item) {
     return {
-        self:   { href: `/maleta/${item.id}` },
+        self: { href: `/maleta/${item.id}` },
         update: { href: `/maleta/${item.id}`, method: "PUT" },
         delete: { href: `/maleta/${item.id}`, method: "DELETE" },
         create: { href: `/maleta`, method: "POST" },
-        all:    { href: `/maleta`, method: "GET" }
+        all: { href: `/maleta`, method: "GET" }
     };
 }
 
 
 app.get('/maleta', (req, res) => {
+    // adiciona links HATEOAS em cada item
     const response = inventario.map(item => ({
         ...item,
         link: nivel3(item),
     }));
-    res.status(200).json(response);
+
+    const response2 = acessorio.map(item2 => ({
+        ...item2,
+        link: nivel3(item2),
+    }));
+
+    // manda de volta os DOIS arrays em um único objeto
+    res.status(200).json({
+        inventario: response,
+        acessorio: response2
+    });
 });
 
+app.get('/acessorios',(req, res) =>{
+    
 
-app.get('/maleta/:id', (req, res)=>{
-    const id = parseInt(req.params.id);
-    const index = inventario.findIndex(item => item.id === id);
-    if(index !== -1){
-        res.status(200).json(inventario[index]);
+    const coleta = acessorio.filter(item => item.coletado === 'sim');
+    const ncoleta = acessorio.filter(item => item.coletado !== 'sim');
+
+    if(coleta.length === 0 && ncoleta.length === 0){
+        return res.status(404).json({ message: "nenhum acessorio encontrado" });
     }
+    res.status(200).json(coleta);
+    res.status(200).json(ncoleta);
+
+});
+
+app.get('/maleta/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const id2 = (req.params.id)
+    const index = inventario.findIndex(item => item.id === id);
+    const index2 = acessorio.findIndex(item => item.id === id2)
+    if (index !== -1) {
+        res.status(200).json(inventario[index]);
+    } else if (index2 !== "") {
+
+        res.status(200).json(acessorio[index2]);
+
+    } else {
+
+        res.status(404).json({ message: "nao foi encontrado" })
+
+    }
+
 });
 
 
-app.post('/maleta', (req, res) =>{
+app.post('/maleta', (req, res) => {
 
-   if(inventario.length >10){
-       res.status(400).json({ mensagem: "A maleta está cheia. O limite é de 10 itens." });
+    const name = req.body.name;
+    const habilidade = req.body.habilidade;
+
+
+    if (inventario.length >= 10) {
+
+        res.status(400).json({ message: "inventario cheio" });
+
+    } else if (name === null || name === "" || name === undefined) {
+
+        res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
+
+    } else {
+
+        if (habilidade == undefined) {
+
+
+
+            const ItemType = req.body.tipo;
+
+            if (req.body.tipo === null || req.body.tipo === "" || req.body.tipo === undefined) {
+
+                res.status(400).json({ message: "É necessário informar a propriedade 'tipo' ou 'habilidade'" });
+
+            } else if (ItemType === 'vida') {
+
+                if (req.body.recuperacao === null || req.body.recuperacao === "" || req.body.recuperacao === undefined) {
+
+                    res.status(400).json({ message: "para itens de cura o valor da propriedade 'recuperacao' é obrigatorio" });
+
+                } else {
+
+                    if (req.body.combinavel === null || req.body.combinavel === "" || req.body.combinavel === undefined) {
+
+                        res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+
+                    } else {
+
+                        const newItem = { id: inventario.length + 1, ...req.body }
+                        //push insere um novo item no vetor...
+                        inventario.push(newItem);
+                        res.status(201).json(newItem);
+
+                    }
+
+                }
+
+            } else {
+
+                if (req.body.dano === null || req.body.dano === "" || req.body.dano === undefined) {
+
+                    res.status(400).json({ message: "para itens de ataque o valor da propriedade 'dano' é obrigatorio" });
+
+                } else {
+
+                    if (req.body.combinavel === null || req.body.combinavel === "" || req.body.combinavel === undefined) {
+
+                        res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+
+                    } else {
+
+                        const newItem = { id: inventario.length + 1, ...req.body }
+                        //push insere um novo item no vetor...
+                        inventario.push(newItem);
+                        res.status(201).json(newItem);
+
+                    }
+
+                }
+
+            }
+
+        } else {
+
+            if (habilidade === "" || habilidade === null) {
+
+                res.status(400).json({ message: "é necessario informar a propriedade 'habilidade' para os acessorios" });
+
+            } else {
+
+                const newItem2 = { id: acessorio.id = NumeroParaLetra(acessorio.length), ...req.body }
+                acessorio.push(newItem2);
+                res.status(201).json(newItem2);
+
+            }
+
+        }
+
     }
 
     if(req.body.name == null || req.body.name ===''){
@@ -57,22 +189,16 @@ app.post('/maleta', (req, res) =>{
         res.status(201).json(newItem);
     }
 
-
-});
+})
 
 
 
 app.post('/maleta/combinar', (req, res) => {
-    const indexVerde = inventario.findIndex(item => item && item.name === 'Erva Verde');
-    const indexVermelha = inventario.findIndex(item => item && item.name === 'Erva Vermelha');
+    const indexVerde = inventario.findIndex(item => item.name === 'Erva Verde');
+    const indexVermelha = inventario.findIndex(item => item.name === 'Erva Vermelha');
 
-    //verifica se o index é menor que 0
     if (indexVerde >= 0 && indexVermelha >= 0) {
-        const idVerde = inventario[indexVerde].id;
-        const idVermelha = inventario[indexVermelha].id;
-        const menorId = Math.min(idVerde, idVermelha);
 
-        // Remove as ervas em ordem para não bagunçar índices
         if (indexVerde > indexVermelha) {
             inventario.splice(indexVerde, 1);
             inventario.splice(indexVermelha, 1);
@@ -81,13 +207,8 @@ app.post('/maleta/combinar', (req, res) => {
             inventario.splice(indexVerde, 1);
         }
 
-        // Procurar slot vazio
-        const slotVazio = inventario.findIndex(item => item == null);
-
-        if (slotVazio !== -1) {
-            inventario[slotVazio] = { id: menorId, name: "Ervas Combinadas" };
-        } else if (inventario.length < 10) {
-            inventario.push({ id: menorId, name: "Ervas Combinadas" });
+        if (inventario.length < 10) {
+            inventario.push({ id: inventario.length + 1, name: "Ervas Combinadas", tipo: "vida", recuperacao: 20, combinavel: "não" });
         } else {
             return res.status(400).json({ message: "Maleta cheia!" });
         }
