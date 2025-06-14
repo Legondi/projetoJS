@@ -292,7 +292,7 @@ app.delete('/acessorios/:id', (req, res) => {
     const id = (req.params.id);
     const find = acessorio.findIndex(item => item.id === id);
 
-    if (find !== "") {
+    if (find !== -1) {
 
         acessorio.splice(find, 1);
         res.status(200).json({ mensage: "item descartado" });
