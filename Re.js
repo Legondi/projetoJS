@@ -241,51 +241,32 @@ app.put('/maleta/:id', (req, res) => {
     if (find !== -1) {
 
         inventario[find] = { id, ...req.body }
-        return res.status(404).json({ message: "Você não tem esse item." });
+        res.status(404).json({ message: "Você não tem esse item." });
  
-    }
-
-     const { name, tipo, dano, recuperacao, combinavel } = req.body;
-    //valida se o item existe
-    if (ValidaVazio(name)) {
-        res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
-    } else {
-        //valida se o tipo é vida ou ataque
-        if (tipo === 'vida') {
-
-            //valida se a propriedade recuperacao foi informada
-            if (ValidaVazio(recuperacao)) {
-                res.status(400).json({ message: "para itens de cura o valor da propriedade 'recuperacao' é obrigatorio" });
+    }else{
+        if (ValidaVazio(req.body.name)) {
+            return res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
+        }else{
+            //valida se a propriedade tipo foi informada
+            if (ValidaVazio(req.body.tipo)) {
+                return res.status(400).json({ message: "é necessario informar a propriedade 'tipo' para os itens de ataque" });
             } else {
 
-                //valida se a propriedade combinavel foi informada
-                if (ValidaVazio(combinavel)) {
-                    res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+                //valida se a propriedade dano foi informada
+                if (ValidaVazio(req.body.dano)) {
+                    return res.status(400).json({ message: "é necessario informar a propriedade 'dano' para os itens de ataque" });
                 }
 
             }
 
-        } else {
-
-            //valida se a propriedade dano foi informada
-            if (ValidaVazio(dano)) {
-                res.status(400).json({ message: "para itens de ataque o valor da propriedade 'dano' é obrigatorio" });
-            } else {
-
-                //valida se a propriedade combinavel foi informada
-                if (ValidaVazio(combinavel)) {
-                    res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
-                }
-
-            }
-    }
-
-        inventario[find] = { id, ...req.body };
-        res.status(200).json(inventario[find]);
-    
+            inventario[find] = { id, ...req.body };
+            return res.status(200).json(inventario[find]);
+        }
     }
 
 });
+
+   
 
 app.put('/acessorios/:id', (req, res) => {
 
@@ -296,26 +277,26 @@ app.put('/acessorios/:id', (req, res) => {
         inventario[find] = { id, ...req.body }
         return res.status(404).json({ message: "Você não tem esse item." });
  
-    }const {name,habilidade,coletado} = req.body;
-    //valida se o item existe
-    if (ValidaVazio(name)){
-        return res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
-
     } else{
-        //valida se a propriedade habilidade foi informada
-        if (ValidaVazio(habilidade)) {
-            return res.status(400).json({ message: "é necessario informar a propriedade 'habilidade' para os acessorios" });
+        if (ValidaVazio(req.body.name)) {
+            return res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
         } else {
 
-            //valida se a propriedade coletado foi informada
-            if (ValidaVazio(coletado)) {
-                return res.status(400).json({ message: "é necessario informar a propriedade 'coletado' para acessorios" });
+            //valida se a propriedade habilidade foi informada
+            if (ValidaVazio(req.body.habilidade)) {
+                return res.status(400).json({ message: "é necessario informar a propriedade 'habilidade' para os itens de ataque" });
+            } else {
+
+                //valida se a propriedade coletado foi informada
+                if (ValidaVazio(req.body.coletado)) {
+                    return res.status(400).json({ message: "é necessario informar a propriedade 'coletado' para os itens de ataque" });
+                }
+
             }
 
+            acessorio[find] = { id, ...req.body };
+            return res.status(200).json(acessorio[find]);
         }
-
-        acessorio[find] = { id, ...req.body };
-        return res.status(200).json(acessorio[find]);
     }
 
 });
