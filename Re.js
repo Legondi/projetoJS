@@ -241,12 +241,48 @@ app.put('/maleta/:id', (req, res) => {
     if (find !== -1) {
 
         inventario[find] = { id, ...req.body }
-        res.status(200).json(inventario[find]);
+        return res.status(404).json({ message: "Você não tem esse item." });
+ 
+    }
 
+     const { name, tipo, dano, recuperacao, combinavel } = req.body;
+    //valida se o item existe
+    if (ValidaVazio(name)) {
+        res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
     } else {
+        //valida se o tipo é vida ou ataque
+        if (tipo === 'vida') {
 
-        res.status(404).json({ message: "voce nao tem esse item" });
+            //valida se a propriedade recuperacao foi informada
+            if (ValidaVazio(recuperacao)) {
+                res.status(400).json({ message: "para itens de cura o valor da propriedade 'recuperacao' é obrigatorio" });
+            } else {
 
+                //valida se a propriedade combinavel foi informada
+                if (ValidaVazio(combinavel)) {
+                    res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+                }
+
+            }
+
+        } else {
+
+            //valida se a propriedade dano foi informada
+            if (ValidaVazio(dano)) {
+                res.status(400).json({ message: "para itens de ataque o valor da propriedade 'dano' é obrigatorio" });
+            } else {
+
+                //valida se a propriedade combinavel foi informada
+                if (ValidaVazio(combinavel)) {
+                    res.status(400).json({ message: "é necessario informar a propriedade 'combinavel'" });
+                }
+
+            }
+    }
+
+        inventario[find] = { id, ...req.body };
+        res.status(200).json(inventario[find]);
+    
     }
 
 });
@@ -255,15 +291,31 @@ app.put('/acessorios/:id', (req, res) => {
 
     const id = (req.params.id);
     const find = acessorio.findIndex(item => item.id === id);
-    if (find !== "") {
+    if (find !== -1) {
 
-        acessorio[find] = { id, ...req.body }
-        res.status(200).json(acessorio[find]);
+        inventario[find] = { id, ...req.body }
+        return res.status(404).json({ message: "Você não tem esse item." });
+ 
+    }const {name,habilidade,coletado} = req.body;
+    //valida se o item existe
+    if (ValidaVazio(name)){
+        return res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
 
-    } else {
+    } else{
+        //valida se a propriedade habilidade foi informada
+        if (ValidaVazio(habilidade)) {
+            return res.status(400).json({ message: "é necessario informar a propriedade 'habilidade' para os acessorios" });
+        } else {
 
-        res.status(404).json({ message: "voce nao tem esse item" });
+            //valida se a propriedade coletado foi informada
+            if (ValidaVazio(coletado)) {
+                return res.status(400).json({ message: "é necessario informar a propriedade 'coletado' para acessorios" });
+            }
 
+        }
+
+        acessorio[find] = { id, ...req.body };
+        return res.status(200).json(acessorio[find]);
     }
 
 });
