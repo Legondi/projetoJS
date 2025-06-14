@@ -238,33 +238,30 @@ app.put('/maleta/:id', (req, res) => {
 
     const id = parseInt(req.params.id);
     const find = inventario.findIndex(maleta => maleta.id === id);
+
     if (find !== -1) {
 
-        inventario[find] = { id, ...req.body }
-        res.status(404).json({ message: "Você não tem esse item." });
- 
-    }else{
         if (ValidaVazio(req.body.name)) {
-            return res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
-        }else{
-            //valida se a propriedade tipo foi informada
+            res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
+        } else {
             if (ValidaVazio(req.body.tipo)) {
-                return res.status(400).json({ message: "é necessario informar a propriedade 'tipo' para os itens de ataque" });
+                res.status(400).json({ message: "é necessário informar a propriedade 'tipo' para os itens de ataque" });
             } else {
-
-                //valida se a propriedade dano foi informada
                 if (ValidaVazio(req.body.dano)) {
-                    return res.status(400).json({ message: "é necessario informar a propriedade 'dano' para os itens de ataque" });
+                    res.status(400).json({ message: "é necessário informar a propriedade 'dano' para os itens de ataque" });
+                } else {
+                    inventario[find] = { id, ...req.body };
+                    res.status(200).json(inventario[find]);
                 }
-
             }
-
-            inventario[find] = { id, ...req.body };
-            return res.status(200).json(inventario[find]);
         }
+
+    } else {
+        res.status(404).json({ message: "Você não tem esse item." });
     }
 
 });
+
 
    
 
@@ -272,34 +269,30 @@ app.put('/acessorios/:id', (req, res) => {
 
     const id = (req.params.id);
     const find = acessorio.findIndex(item => item.id === id);
+
     if (find !== -1) {
 
-        inventario[find] = { id, ...req.body }
-        return res.status(404).json({ message: "Você não tem esse item." });
- 
-    } else{
         if (ValidaVazio(req.body.name)) {
-            return res.status(400).json({ message: "a propriedade 'name' é obrigatoria" });
+            return res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
         } else {
-
-            //valida se a propriedade habilidade foi informada
             if (ValidaVazio(req.body.habilidade)) {
-                return res.status(400).json({ message: "é necessario informar a propriedade 'habilidade' para os itens de ataque" });
+                return res.status(400).json({ message: "é necessário informar a propriedade 'habilidade' para os acessórios" });
             } else {
-
-                //valida se a propriedade coletado foi informada
                 if (ValidaVazio(req.body.coletado)) {
-                    return res.status(400).json({ message: "é necessario informar a propriedade 'coletado' para os itens de ataque" });
+                    return res.status(400).json({ message: "é necessário informar a propriedade 'coletado' para os acessórios" });
+                } else {
+                    acessorio[find] = { id, ...req.body };
+                    return res.status(200).json(acessorio[find]);
                 }
-
             }
-
-            acessorio[find] = { id, ...req.body };
-            return res.status(200).json(acessorio[find]);
         }
+
+    } else {
+        return res.status(404).json({ message: "Você não tem esse item." });
     }
 
 });
+
 
 
 app.delete('/maleta/:id', (req, res) => {
