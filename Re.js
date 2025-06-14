@@ -234,30 +234,55 @@ app.post('/maleta/combinar', (req, res) => {
     }
 });
 
+// Rota para atualizar um item da maleta pelo ID
 app.put('/maleta/:id', (req, res) => {
 
+    // Pega o ID da URL e transforma em inteiro
     const id = parseInt(req.params.id);
+
+    // Procura o índice do item dentro do inventário
     const find = inventario.findIndex(maleta => maleta.id === id);
 
+    // Se encontrou o item (find !== -1)
     if (find !== -1) {
 
+        // Validação: verifica se o campo 'name' foi informado e não é vazio
         if (ValidaVazio(req.body.name)) {
-            res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
+            return res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
+
         } else {
+
+            // Validação: verifica se o campo 'tipo' foi informado e não é vazio
             if (ValidaVazio(req.body.tipo)) {
-                res.status(400).json({ message: "é necessário informar a propriedade 'tipo' para os itens de ataque" });
+                return res.status(400).json({ message: "é necessário informar a propriedade 'tipo'" });
+
             } else {
-                if (ValidaVazio(req.body.dano)) {
-                    res.status(400).json({ message: "é necessário informar a propriedade 'dano' para os itens de ataque" });
+
+                // Se o tipo do item for 'vida', valida o campo 'recuperacao'
+                if (req.body.tipo === "vida") {
+                    if (ValidaVazio(req.body.recuperacao)) {
+                        return res.status(400).json({ message: "para itens de cura o valor da propriedade 'recuperacao' é obrigatório" });
+                    } else {
+                        // Atualiza apenas os campos informados mantendo os outros
+                        inventario[find] = { ...inventario[find], ...req.body };
+                        return res.status(200).json(inventario[find]);
+                    }
                 } else {
-                    inventario[find] = { id, ...req.body };
-                    res.status(200).json(inventario[find]);
+                    // Para qualquer outro tipo, valida o campo 'dano'
+                    if (ValidaVazio(req.body.dano)) {
+                        return res.status(400).json({ message: "para itens de ataque o valor da propriedade 'dano' é obrigatório" });
+                    } else {
+                        // Atualiza apenas os campos informados mantendo os outros
+                        inventario[find] = { ...inventario[find], ...req.body };
+                        return res.status(200).json(inventario[find]);
+                    }
                 }
             }
         }
 
     } else {
-        res.status(404).json({ message: "Você não tem esse item." });
+        // Caso o item não seja encontrado no inventário
+        return res.status(404).json({ message: "Você não tem esse item." });
     }
 
 });
@@ -265,22 +290,34 @@ app.put('/maleta/:id', (req, res) => {
 
    
 
+// Rota para atualizar um acessório pelo ID
 app.put('/acessorios/:id', (req, res) => {
 
+    // Pega o ID da URL
     const id = (req.params.id);
+
+    // Procura o índice do item dentro do array de acessórios
     const find = acessorio.findIndex(item => item.id === id);
 
+    // Se encontrou o item (find !== -1)
     if (find !== -1) {
 
+        // Validação: verifica se o campo 'name' foi informado e não é vazio
         if (ValidaVazio(req.body.name)) {
             return res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
+
         } else {
+            // Validação: verifica se o campo 'habilidade' foi informado e não é vazio
             if (ValidaVazio(req.body.habilidade)) {
                 return res.status(400).json({ message: "é necessário informar a propriedade 'habilidade' para os acessórios" });
+
             } else {
+                // Validação: verifica se o campo 'coletado' foi informado e não é vazio
                 if (ValidaVazio(req.body.coletado)) {
                     return res.status(400).json({ message: "é necessário informar a propriedade 'coletado' para os acessórios" });
+
                 } else {
+                    // Atualiza todos os campos com o novo objeto enviado no body (sobrescreve o item)
                     acessorio[find] = { id, ...req.body };
                     return res.status(200).json(acessorio[find]);
                 }
@@ -288,6 +325,7 @@ app.put('/acessorios/:id', (req, res) => {
         }
 
     } else {
+        // Caso o acessório não seja encontrado
         return res.status(404).json({ message: "Você não tem esse item." });
     }
 
