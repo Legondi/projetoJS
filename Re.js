@@ -201,7 +201,7 @@ app.post('/maleta', (req, res) => {
 
 //post que combina 2 items especificos do inventario
 app.post('/maleta/combinar', (req, res) => {
-    
+
     //coleta o index com base no nome do item
     const indexVerde = inventario.findIndex(item => item.name === 'Erva Verde');
     const indexVermelha = inventario.findIndex(item => item.name === 'Erva Vermelha');
@@ -234,141 +234,106 @@ app.post('/maleta/combinar', (req, res) => {
     }
 });
 
-// Rota para atualizar um item da maleta pelo ID
 app.put('/maleta/:id', (req, res) => {
+    const id = parseInt(req.params.id); // Converte o ID da URL para número
+    const find = inventario.findIndex(maleta => maleta.id === id); // Busca a posição do item no array
 
-    // Pega o ID da URL e transforma em inteiro
-    const id = parseInt(req.params.id);
+    if (find !== -1) { // Se o item foi encontrado
 
-    // Procura o índice do item dentro do inventário
-    const find = inventario.findIndex(maleta => maleta.id === id);
-
-    // Se encontrou o item (find !== -1)
-    if (find !== -1) {
-
-        // Validação: verifica se o campo 'name' foi informado e não é vazio
-        if (ValidaVazio(req.body.name)) {
-            return res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
+        if (ValidaVazio(req.body.name)) { // Verifica se o nome foi enviado
+            res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
 
         } else {
+            if (ValidaVazio(req.body.tipo)) { // Verifica se o tipo foi enviado
+                res.status(400).json({ message: "é necessário informar a propriedade 'tipo'" });
 
-            // Validação: verifica se o campo 'tipo' foi informado e não é vazio
-            if (ValidaVazio(req.body.tipo)) {
-                return res.status(400).json({ message: "é necessário informar a propriedade 'tipo'" });
+            } else if (req.body.tipo === "vida") { // Se for item de cura
+                if (ValidaVazio(req.body.recuperacao)) { // Precisa ter valor de recuperação
+                    res.status(400).json({ message: "é necessário informar a propriedade 'recuperação' para os itens de cura" });
 
-            } else {
-
-                // Se o tipo do item for 'vida', valida o campo 'recuperacao'
-                if (req.body.tipo === "vida") {
-                    if (ValidaVazio(req.body.recuperacao)) {
-                        return res.status(400).json({ message: "para itens de cura o valor da propriedade 'recuperacao' é obrigatório" });
-                    } else {
-                        // Atualiza apenas os campos informados mantendo os outros
-                        inventario[find] = { ...inventario[find], ...req.body };
-                        return res.status(200).json(inventario[find]);
-                    }
                 } else {
-                    // Para qualquer outro tipo, valida o campo 'dano'
-                    if (ValidaVazio(req.body.dano)) {
-                        return res.status(400).json({ message: "para itens de ataque o valor da propriedade 'dano' é obrigatório" });
+                    if (ValidaVazio(req.body.combinavel)) { // Verifica se o campo combinável foi enviado
+                        res.status(400).json({ message: "é necessário informar a propriedade 'combinavel'" });
+
                     } else {
-                        // Atualiza apenas os campos informados mantendo os outros
-                        inventario[find] = { ...inventario[find], ...req.body };
-                        return res.status(200).json(inventario[find]);
+                        inventario[find] = { id, ...req.body }; // Atualiza o item no array
+                        res.status(200).json(inventario[find]); // Retorna o item atualizado
+                    }
+                }
+
+            } else { // Se não for de cura, assume que é de ataque
+                if (ValidaVazio(req.body.dano)) { // Verifica se o dano foi enviado
+                    res.status(400).json({ message: "é necessário informar a propriedade 'dano' para os itens de ataque" });
+
+                } else {
+                    if (ValidaVazio(req.body.combinavel)) { // Verifica se o campo combinável foi enviado
+                        res.status(400).json({ message: "é necessário informar a propriedade 'combinavel'" });
+
+                    } else {
+                        inventario[find] = { id, ...req.body }; // Atualiza o item
+                        res.status(200).json(inventario[find]); // Retorna o item atualizado
                     }
                 }
             }
         }
 
     } else {
-        // Caso o item não seja encontrado no inventário
-        return res.status(404).json({ message: "Você não tem esse item." });
+        res.status(404).json({ message: "Você não tem esse item." }); // Item não encontrado
     }
-
 });
 
-
-   
-
-// Rota para atualizar um acessório pelo ID
 app.put('/acessorios/:id', (req, res) => {
+    const id = (req.params.id); // ID recebido como string
+    const find = acessorio.findIndex(item => item.id === id); // Busca o item no array
 
-    // Pega o ID da URL
-    const id = (req.params.id);
-
-    // Procura o índice do item dentro do array de acessórios
-    const find = acessorio.findIndex(item => item.id === id);
-
-    // Se encontrou o item (find !== -1)
     if (find !== -1) {
 
-        // Validação: verifica se o campo 'name' foi informado e não é vazio
-        if (ValidaVazio(req.body.name)) {
+        if (ValidaVazio(req.body.name)) { // Verifica se o nome foi enviado
             return res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
 
         } else {
-            // Validação: verifica se o campo 'habilidade' foi informado e não é vazio
-            if (ValidaVazio(req.body.habilidade)) {
+            if (ValidaVazio(req.body.habilidade)) { // Verifica se a habilidade foi enviada
                 return res.status(400).json({ message: "é necessário informar a propriedade 'habilidade' para os acessórios" });
 
             } else {
-                // Validação: verifica se o campo 'coletado' foi informado e não é vazio
-                if (ValidaVazio(req.body.coletado)) {
+                if (ValidaVazio(req.body.coletado)) { // Verifica se o campo coletado foi enviado
                     return res.status(400).json({ message: "é necessário informar a propriedade 'coletado' para os acessórios" });
 
                 } else {
-                    // Atualiza todos os campos com o novo objeto enviado no body (sobrescreve o item)
-                    acessorio[find] = { id, ...req.body };
-                    return res.status(200).json(acessorio[find]);
+                    acessorio[find] = { id, ...req.body }; // Atualiza o acessório
+                    return res.status(200).json(acessorio[find]); // Retorna o acessório atualizado
                 }
             }
         }
 
     } else {
-        // Caso o acessório não seja encontrado
-        return res.status(404).json({ message: "Você não tem esse item." });
+        return res.status(404).json({ message: "Você não tem esse item." }); // Item não encontrado
     }
-
 });
 
-
-
 app.delete('/maleta/:id', (req, res) => {
-
-    const id = (req.params.id);
-    const find = inventario.findIndex(maleta => maleta.id === id);
+    const id = parseInt(req.params.id); // Converte o ID para número
+    const find = inventario.findIndex(maleta => maleta.id === id); // Busca o item
 
     if (find !== -1) {
-
-        inventario.splice(find, 1);
-        res.status(200).json({ mensage: "item descartado" });
-
+        inventario.splice(find, 1); // Remove o item da maleta
+        res.status(200).json({ mensage: "item descartado" }); // Confirmação
     } else {
-
-        res.status(404).json({ mensage: "voce nao tem esse item" });
-
+        res.status(404).json({ mensage: "voce nao tem esse item" }); // Item não encontrado
     }
-
 });
 
 app.delete('/acessorios/:id', (req, res) => {
-
-    const id = (req.params.id);
-    const find = acessorio.findIndex(item => item.id === id);
+    const id = (req.params.id); // ID recebido como string
+    const find = acessorio.findIndex(item => item.id === id); // Busca o item
 
     if (find !== -1) {
-
-        acessorio.splice(find, 1);
-        res.status(200).json({ mensage: "item descartado" });
-
+        acessorio.splice(find, 1); // Remove o acessório
+        res.status(200).json({ mensage: "item descartado" }); // Confirmação
     } else {
-
-        res.status(404).json({ mensage: "voce nao tem esse item" });
-
+        res.status(404).json({ mensage: "voce nao tem esse item" }); // Item não encontrado
     }
-
 });
-
 
 app.listen(port, () => {
 
