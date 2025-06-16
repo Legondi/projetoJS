@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 2004;
+const port = 2005;
 
 app.use(express.json());
 
@@ -289,25 +289,25 @@ app.put('/acessorios/:id', (req, res) => {
     if (find !== -1) {
 
         if (ValidaVazio(req.body.name)) { // Verifica se o nome foi enviado
-            return res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
+             res.status(400).json({ message: "a propriedade 'name' é obrigatória" });
 
         } else {
             if (ValidaVazio(req.body.habilidade)) { // Verifica se a habilidade foi enviada
-                return res.status(400).json({ message: "é necessário informar a propriedade 'habilidade' para os acessórios" });
+             res.status(400).json({ message: "é necessário informar a propriedade 'habilidade' para os acessórios" });
 
             } else {
                 if (ValidaVazio(req.body.coletado)) { // Verifica se o campo coletado foi enviado
-                    return res.status(400).json({ message: "é necessário informar a propriedade 'coletado' para os acessórios" });
+                     res.status(400).json({ message: "é necessário informar a propriedade 'coletado' para os acessórios" });
 
                 } else {
                     acessorio[find] = { id, ...req.body }; // Atualiza o acessório
-                    return res.status(200).json(acessorio[find]); // Retorna o acessório atualizado
+                     res.status(200).json(acessorio[find]); // Retorna o acessório atualizado
                 }
             }
         }
 
     } else {
-        return res.status(404).json({ message: "Você não tem esse item." }); // Item não encontrado
+         res.status(404).json({ message: "Você não tem esse item." }); // Item não encontrado
     }
 });
 
